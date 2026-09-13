@@ -37,6 +37,9 @@ UNION ALL
 SELECT 'Tira', COUNT(*)
 FROM tira_campaigns;
 
+-- Check for duplicate Campaign IDs.
+-- This helps make sure the same campaign is not repeated.
+
 SELECT COUNT(*) AS Duplicate_IDs
 FROM (
     SELECT Campaign_ID
@@ -44,6 +47,9 @@ FROM (
     GROUP BY Campaign_ID
     HAVING COUNT(*) > 1
 ) AS duplicates;
+
+
+-- Check duplicate Campaign IDs in Tira.
 
 SELECT COUNT(*) AS Duplicate_IDs
 FROM (
@@ -53,6 +59,9 @@ FROM (
     HAVING COUNT(*) > 1
 ) AS duplicates;
 
+
+-- Check duplicate Campaign IDs in Purplle.
+
 SELECT COUNT(*) AS Duplicate_IDs
 FROM (
     SELECT Campaign_ID
@@ -60,6 +69,10 @@ FROM (
     GROUP BY Campaign_ID
     HAVING COUNT(*) > 1
 ) AS duplicates;
+
+
+-- Check for missing values in the Tira data.
+-- This makes sure important fields are not empty.
 
 SELECT
     SUM(Campaign_ID IS NULL) AS Campaign_ID_NULL,
@@ -80,6 +93,54 @@ SELECT
     SUM(Date IS NULL) AS Date_NULL
 FROM tira_campaigns;
 
+-- Check for missing values in the Nykaa data.
+-- This makes sure important fields are not empty.
+
+SELECT
+    SUM(Campaign_ID IS NULL) AS Campaign_ID_NULL,
+    SUM(Campaign_Type IS NULL) AS Campaign_Type_NULL,
+    SUM(Target_Audience IS NULL) AS Target_Audience_NULL,
+    SUM(Duration IS NULL) AS Duration_NULL,
+    SUM(Channel_Used IS NULL) AS Channel_NULL,
+    SUM(Impressions IS NULL) AS Impressions_NULL,
+    SUM(Clicks IS NULL) AS Clicks_NULL,
+    SUM(Leads IS NULL) AS Leads_NULL,
+    SUM(Conversions IS NULL) AS Conversions_NULL,
+    SUM(Revenue IS NULL) AS Revenue_NULL,
+    SUM(Acquisition_Cost IS NULL) AS Acquisition_Cost_NULL,
+    SUM(ROI IS NULL) AS ROI_NULL,
+    SUM(Language IS NULL) AS Language_NULL,
+    SUM(Engagement_Score IS NULL) AS Engagement_NULL,
+    SUM(Customer_Segment IS NULL) AS Segment_NULL,
+    SUM(Date IS NULL) AS Date_NULL
+FROM nykaa_campaigns;
+
+-- Check for missing values in the Purplle data.
+-- This makes sure important fields are not empty.
+
+SELECT
+    SUM(Campaign_ID IS NULL) AS Campaign_ID_NULL,
+    SUM(Campaign_Type IS NULL) AS Campaign_Type_NULL,
+    SUM(Target_Audience IS NULL) AS Target_Audience_NULL,
+    SUM(Duration IS NULL) AS Duration_NULL,
+    SUM(Channel_Used IS NULL) AS Channel_NULL,
+    SUM(Impressions IS NULL) AS Impressions_NULL,
+    SUM(Clicks IS NULL) AS Clicks_NULL,
+    SUM(Leads IS NULL) AS Leads_NULL,
+    SUM(Conversions IS NULL) AS Conversions_NULL,
+    SUM(Revenue IS NULL) AS Revenue_NULL,
+    SUM(Acquisition_Cost IS NULL) AS Acquisition_Cost_NULL,
+    SUM(ROI IS NULL) AS ROI_NULL,
+    SUM(Language IS NULL) AS Language_NULL,
+    SUM(Engagement_Score IS NULL) AS Engagement_NULL,
+    SUM(Customer_Segment IS NULL) AS Segment_NULL,
+    SUM(Date IS NULL) AS Date_NULL
+FROM purplle_campaigns;
+
+
+-- Check the date range of all three brands.
+-- This helps confirm that the brands cover a similar period.
+
 SELECT 'Nykaa' AS Brand, MIN(Date) AS Start_Date, MAX(Date) AS End_Date
 FROM nykaa_campaigns
 
@@ -93,6 +154,10 @@ UNION ALL
 SELECT 'Tira', MIN(Date), MAX(Date)
 FROM tira_campaigns;
 
+
+-- Check minimum values of the main numeric columns.
+-- This helps find unusual values before analysis.
+
 SELECT
     MIN(Impressions) AS Min_Impressions,
     MIN(Clicks) AS Min_Clicks,
@@ -103,6 +168,10 @@ SELECT
     MIN(ROI) AS Min_ROI,
     MIN(Engagement_Score) AS Min_Engagement
 FROM nykaa_campaigns;
+
+
+-- Check minimum values for Purplle and Tira as well.
+
 SELECT
     'Purplle' AS Brand,
     MIN(Impressions) AS Min_Impressions,
@@ -129,6 +198,10 @@ SELECT
     MIN(Engagement_Score)
 FROM tira_campaigns;
 
+
+-- Create one common table for all three brands.
+-- This makes comparison easier in SQL and Power BI.
+
 CREATE TABLE marketing_campaigns (
     Brand VARCHAR(20),
     Campaign_ID VARCHAR(30),
@@ -149,7 +222,13 @@ CREATE TABLE marketing_campaigns (
     Date VARCHAR(20)
 );
 
+
+-- Quick check of the master table.
+
 select * from marketing_campaigns;
+
+
+-- Add Nykaa data to the master table.
 
 INSERT INTO marketing_campaigns
 SELECT 
@@ -172,6 +251,9 @@ SELECT
     Date
 FROM nykaa_campaigns;
 
+
+-- Add Purplle data to the master table.
+
 INSERT INTO marketing_campaigns
 SELECT 
     'Purplle',
@@ -192,6 +274,9 @@ SELECT
     Customer_Segment,
     Date
 FROM purplle_campaigns;
+
+
+-- Add Tira data to the master table.
 
 INSERT INTO marketing_campaigns
 SELECT 
@@ -214,6 +299,14 @@ SELECT
     Date
 FROM tira_campaigns;
 
+-- Final check of the complete master data.
+
+SELECT *
+FROM marketing_campaigns;
+
+-- Compare the overall performance of each brand.
+-- This gives us a quick view of which brand performs better.
+
 SELECT
     Brand,
     COUNT(*) AS Total_Campaigns,
@@ -228,6 +321,10 @@ FROM marketing_campaigns
 GROUP BY Brand
 ORDER BY Total_Revenue DESC;
 
+
+-- Compare channel combinations by ROI.
+-- This helps find which channel combinations perform better.
+
 SELECT
     Brand,
     Channel_Used,
@@ -239,6 +336,10 @@ SELECT
 FROM marketing_campaigns
 GROUP BY Brand, Channel_Used
 ORDER BY Brand, Average_ROI DESC;
+
+
+-- Compare different campaign types.
+-- This helps identify the better-performing campaign types.
 
 SELECT
     Brand,
@@ -252,6 +353,10 @@ FROM marketing_campaigns
 GROUP BY Brand, Campaign_Type
 ORDER BY Brand, Average_ROI DESC;
 
+
+-- Compare customer segments by ROI.
+-- This helps identify the better-performing customer groups.
+
 SELECT
     Brand,
     Customer_Segment,
@@ -262,6 +367,10 @@ SELECT
 FROM marketing_campaigns
 GROUP BY Brand, Customer_Segment
 ORDER BY Brand, Average_ROI DESC;
+
+
+-- Compare target audiences by ROI.
+-- This shows which audiences are performing better.
 
 SELECT
     Brand,
@@ -274,6 +383,10 @@ FROM marketing_campaigns
 GROUP BY Brand, Target_Audience
 ORDER BY Brand, Average_ROI DESC;
 
+
+-- Look closer at Purplle's College Students segment.
+-- This helps us check which target audience performs best within it.
+
 SELECT
     Target_Audience,
     COUNT(*) AS Campaigns,
@@ -285,6 +398,10 @@ WHERE Brand = 'Purplle'
   AND Customer_Segment = 'College Students'
 GROUP BY Target_Audience
 ORDER BY Average_ROI DESC;
+
+
+-- Check monthly performance of each brand.
+-- This helps us see how ROI, revenue and conversions change over time.
 
 SELECT
     Brand,
@@ -300,7 +417,11 @@ GROUP BY
     MONTH(STR_TO_DATE(Date, '%d-%m-%Y'))
 ORDER BY
     Brand, Year, Month;
-    
+
+
+-- Calculate conversion rate for each campaign type.
+-- This shows how well leads are converted into customers.
+
 SELECT
     Brand,
     Campaign_Type,
@@ -316,6 +437,10 @@ FROM marketing_campaigns
 GROUP BY Brand, Campaign_Type
 ORDER BY Brand, Conversion_Rate DESC;
 
+
+-- Calculate cost per conversion.
+-- This helps compare how efficiently each campaign gets conversions.
+
 SELECT
     Brand,
     Campaign_Type,
@@ -330,6 +455,10 @@ FROM marketing_campaigns
 GROUP BY Brand, Campaign_Type
 ORDER BY Brand, Cost_Per_Conversion;
 
+
+-- Calculate ROAS for each campaign type.
+-- This compares the revenue generated with the acquisition cost.
+
 SELECT
     Brand,
     Campaign_Type,
@@ -343,3 +472,35 @@ SELECT
 FROM marketing_campaigns
 GROUP BY Brand, Campaign_Type
 ORDER BY Brand, ROAS DESC;
+
+
+-- Check where MySQL allows CSV exports.
+
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+
+-- Export the master table to CSV for Power BI.
+
+SELECT
+    Brand,
+    Campaign_ID,
+    Campaign_Type,
+    Target_Audience,
+    Duration,
+    Channel_Used,
+    Impressions,
+    Clicks,
+    Leads,
+    Conversions,
+    Revenue,
+    Acquisition_Cost,
+    ROI,
+    Language,
+    Engagement_Score,
+    Customer_Segment,
+    Date
+FROM marketing_campaigns
+INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/marketing_campaigns_full.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
